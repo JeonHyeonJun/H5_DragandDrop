@@ -1,0 +1,4 @@
+<input type="text" ng-model="todo.title">
+<input type="checkbox" ng-model="todo.completed" ng-click="update()">
+<input type="button" value="삭제" ng-click="remove(todo.id)" ng-blur="update()">
+<p>{{todo.createdAt | date}}</p>
