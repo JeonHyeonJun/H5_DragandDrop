@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!doctype html>
 <html lang="en">
 <head>
@@ -16,7 +17,12 @@
 <link rel="stylesheet" type="text/css" href="resources/dataTables/RowReorder-1.2.3/css/rowReorder.jqueryui.css"/>
 <link rel="stylesheet" type="text/css" href="resources/dataTables/Select-1.2.5/css/select.jqueryui.css"/>
 <link rel="stylesheet" type="text/css" href="resources/dataTables/datatables.css">
- 
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/b-1.5.1/sl-1.2.5/datatables.min.css"/>
+<link rel="stylesheet" type="text/css" href="resources/Editor-1.7.3/css/editor.dataTables.css">
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/b-1.5.1/sl-1.2.5/datatables.min.js"></script>
+<script type="text/javascript" src="resources/Editor-1.7.3/js/dataTables.editor.js"></script>
+
 <script type="text/javascript" charset="utf8" src="resources/dataTables/datatables.js"></script>
 <script type="text/javascript" src="resources/dataTables/DataTables-1.10.16/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="resources/dataTables/DataTables-1.10.16/js/dataTables.jqueryui.js"></script>
@@ -56,7 +62,31 @@
   </style>
   <script>
   $( function() {
-	  $('#ttd').DataTable();
+	 var $ttd = $('#ttd').DataTable();
+	 
+
+	 var editor = new $('#tdiv').dataTable.Editor( {} );
+	 new $('#tdiv').dataTable.Editor( {
+	    table: '#ttd',
+	    fields: [
+	        { label: 'First name', name: 'first_name' },
+	        { label: 'Last name',  name: 'last_name'  },
+	    ]
+	} );
+	 
+	 $ttd.DataTable( {
+		    columns: [
+		        { data: 'first_name' },
+		        { data: 'last_name' },
+		    ],
+		    select: true,
+		    buttons: [
+		        { extend: 'create', editor: editor },
+		        { extend: 'edit',   editor: editor },
+		        { extend: 'remove', editor: editor }
+		    ]
+		} );
+	 
     // There's the gallery and the trash
 	var $gallery = $( "#gallery" ),
 	$trash = $( "#trash" );
@@ -201,7 +231,7 @@
 <div class="ui-widget ui-helper-clearfix">
  
 <div id="trash" class="ui-widget-content ui-state-default">
-  <h4 class="ui-widget-header">쓰담쓰담</h4>
+  <h4 class="ui-widget-header">なでなで</h4>
 </div>
 
 <ul id="gallery" class="gallery ui-helper-reset ui-helper-clearfix">
@@ -227,10 +257,36 @@
  
 </div>
 	<table id="ttd">
-		<tr>
-			<td>123</td>
-		</tr>
-	</table>
+    	<thead>
+        <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        	<td>1</td>
+        	<td>2</td>
+        	<td>3</td>
+        	<td>4</td>
+        	<td>5</td>
+        	<td>6</td>
+        </tr>
+        <tr>
+        	<td>1</td>
+        	<td>2</td>
+        	<td>3</td>
+        	<td>4</td>
+        	<td>5</td>
+        	<td>6</td>
+        </tr>
+        </tbody>
+    
+</table>
 	<div id="tdiv"></div>
 </body>
 </html>
