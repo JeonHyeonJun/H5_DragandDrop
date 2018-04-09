@@ -19,5 +19,6 @@
 <a href="jspFileTest">jsp파일불러오기테스트</a><br>
 <a href="angularTest">Angular</a><br>
 <a href="agDndTest">AngularDrag</a><br>
+<a href="edTest">에딧에딧</a><br>
 </body>
 </html>

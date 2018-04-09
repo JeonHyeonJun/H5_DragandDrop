@@ -94,7 +94,10 @@ public class HomeController {
 	public String agSimple() {
 		return "agSimple";
 	}
-	
+	@RequestMapping(value = "edTest", method = RequestMethod.GET)
+	public String edTest() {
+		return "editText";
+	}
 	@RequestMapping(value="uploadfile", method=RequestMethod.POST)
 	public String writeBoard(MultipartFile upload, Model model){
 		String result = "";
