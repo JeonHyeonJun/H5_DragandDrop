@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,11 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>jQuery UI Droppable - Simple photo manager</title>
   
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/b-1.5.1/sl-1.2.5/datatables.min.css"/>
-<link rel="stylesheet" type="text/css" href="resources/Editor-1.7.3/css/editor.dataTables.css">
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/b-1.5.1/sl-1.2.5/datatables.min.js"></script>
-<script type="text/javascript" src="resources/Editor-1.7.3/js/dataTables.editor.js"></script>
-
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -68,6 +62,9 @@
     	width: 100%;
     	height: 100%;
     }
+    .addfile {
+    	cursor: pointer;
+    }
   
   </style>
 
@@ -77,6 +74,9 @@ document.execCommand('styleWithCSS', false, true);
 document.execCommand('insertBrOnReturn', false, true);
 
 $( function() {
+	
+	var valueNum = 4;	//임의의 파일(이미지,동영상)추가에 줄 값
+	
 	var currentPosition = parseInt($("#sidebox").css("top")); 
 	$(window).scroll(function() { 
 		var position = $(window).scrollTop(); 
@@ -170,8 +170,14 @@ $( function() {
         	"ui-droppable-active": "ui-state-highlight"
       	},
       	drop: function( event, ui ) {
-      		if(ui.draggable.val() == 1 || ui.draggable.val() == 2 || ui.draggable.val() == 3)
-        		deleteImage( ui.draggable );
+      		for(var i=1; i<valueNum; i++){
+      			if(ui.draggable.val() == i){
+      				deleteImage( ui.draggable, i );
+      				break;
+      			}
+      		}
+      		
+        		
       	}
     });
  
@@ -188,7 +194,7 @@ $( function() {
  
     // Image deletion function
 	var recycle_icon = "<a href='link/to/recycle/script/when/we/have/js/off' title='Recycle this image' class='ui-icon ui-icon-refresh'>Recycle image</a>";
-    function deleteImage( $item ) {
+    function deleteImage( $item, num ) {
     	
 		$item.fadeOut(function() {
 	        var $list = $trash;
@@ -250,7 +256,7 @@ $( function() {
 	        	    });
 					
 					
-					$("#wigetBox").prepend('<li class="ui-widget-content ui-corner-tr" value="2">'
+					$("#wigetBox li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="2">'
 			    			 +'<h5 class="ui-widget-header">Table</h5>'
 			    			 +'<img src="resources/img/icon_table.png" alt="The peaks of High Tatras" width="96" height="72">'
 			  				 +'</li>');	
@@ -271,7 +277,7 @@ $( function() {
 	        	    });
 					
 					
-					$("#wigetBox").prepend('<li class="ui-widget-content ui-corner-tr" value="3">'
+					$("#wigetBox li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="3">'
 			    			 +'<h5 class="ui-widget-header">이미지</h5>'
 			    			 +'<img src="resources/img/ebphone.jpg" alt="On top of Kozi kopka" width="96" height="72">'
 			  				 +'</li>');	
@@ -280,17 +286,36 @@ $( function() {
 						revert : "invalid"
 					});
 					
-					alert($( ".drag_img").attr("draggable"));
+					
 				});
 			}
 			
 			else {
-				$item.appendTo( $list ).fadeIn(function() {
-	                  $item.animate({ width: "96px" })
-	                       .animate({ height: "72px" });
+				var src = $('#file'+num).attr('src');
+				var img = '<div class="drag_img" style="border: 1px solid black; width:96px; height: 72px"><img src="'+src+'" class="img"width="96" height="72"></div>';
+				$(img).appendTo( $list ).fadeIn(function() {
+					$item.animate({ width: "96px" })
+						 .animate({ height: "72px" });
+					
+					$( ".drag_img").resizable({
+	        	    	containment: "#trash"
+	        	    });
+					
+					
+					$("#wigetBox li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">이미지</h5>'
+			    			 +'<img src="'+src+'" width="96" height="72" id="file'+num+'">'
+			  				 +'</li>');
+					
+					var ii = $( ".drag_img").draggable({
+						revert : "invalid"
+					});
+
 				});
-			}
+			}//else
 	        
+			
+			//drag이벤트초기화
 			$( "li", $wigetBox ).draggable({
 				cancel: "a.ui-icon", // clicking an icon won't initiate dragging
 				revert: "invalid", // when not dropped, the item will revert back to its initial position
@@ -299,13 +324,14 @@ $( function() {
 				cursor: "move"
 		    });
 			
-			//$("#tdiv").text($wigetBox.text());
+			
+			//$('#ttdiv').text($('#wigetBox').html());
 			
 		});
 	}
  
     // Image recycle function
-	var trash_icon = "<a href='link/to/trash/script/when/we/have/js/off' title='Delete this image' class='ui-icon ui-icon-trash'>Delete image</a>";
+	/* var trash_icon = "<a href='link/to/trash/script/when/we/have/js/off' title='Delete this image' class='ui-icon ui-icon-trash'>Delete image</a>";
     function recycleImage( $item ) {
 		$item.fadeOut(function() {
         $item
@@ -320,13 +346,78 @@ $( function() {
           .appendTo( $wigetBox )
           .fadeIn();
       });
-    }
+    } */
     
-    
+    $("#upload").on("change",function(){
+    	var fileNm = $("#upload").val();
+   	 
+    	if (fileNm != "") {
+    	    var ext = fileNm.slice(fileNm.lastIndexOf(".") + 1).toLowerCase();
+    	
+    	    if (!(ext == "gif" || ext == "jpg" || ext == "png" || ext == "mp4")) {
+    	        alert("이미지파일 (.jpg, .png, .gif ) 과 동영상파일(.mp4)만 업로드 가능합니다.");
+    	        return false;
+    	    }
+    	}
+    	
+		var formData = new FormData();
+		formData.append("file",$("#upload")[0].files[0]);
+		
+		$.ajax({
+			type:"POST",						
+			url:"fileupload",				
+			data:formData,
+			processData: false,
+		    contentType: false,
+			dataType:"text",				
+			success:function(data){	
+				console.log(data);
+				$("#wigetBox li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+valueNum+'">'
+		    			 +'<h5 class="ui-widget-header">이미지</h5>'
+		    			 +'<img src="'+data+'" width="96" height="72" id="file'+valueNum+'">'
+		  				 +'</li>');
+				
+				$( "li", $wigetBox ).draggable({
+					cancel: "a.ui-icon", // clicking an icon won't initiate dragging
+					revert: "invalid", // when not dropped, the item will revert back to its initial position
+					containment: "document",
+					helper: "clone",
+					cursor: "move"
+			    });
+				valueNum++;
+			},
+			error: function(e){			
+				console.log(e);
+			}
+		});
+	});
       
-  } );
+    $('#seebtn').on('click', function () {
+		var save = $('#trash').html();
+		$('#ttdiv').html(save);
+	});
+    $('#savebtn').on('click', function () {
+		var html = $('#trash').html();
+		$('#saveDiv').val(html);
+		$('#saveForm').submit();
+		/* $.ajax({
+			type:"POST",						
+			url:"portSave",				
+			data: {
+				html : html
+			},
+			dataType:"text",				
+			success:function(data){
+				alert(data);
+			},
+			error: function(e){			
+				console.log(e);
+			}
+		}); */
+	});
+});	//function종료
   
-  
+
   </script>
   
 </head>
@@ -335,65 +426,31 @@ $( function() {
 
 <div class="ui-widget ui-helper-clearfix">
  
-	<div id="trash" class="ui-widget-header" style=" top:100px; width: 1000px; height: 700px; border: 1px black solid">
-	  <h4 class="ui-widget-header">なでなで</h4>
-	</div>
+	<div id="trash" class="ui-widget-header" style=" top:100px; width: 1000px; height: 700px; border: 1px black solid"></div>
 	
 	<div id="sidebox" class="sidebox">
+		<input type="button" value="미리보기" id="seebtn">
+		<input type="button" value="저장" id="savebtn">
 		<ul id="wigetBox" class="wigetBox ui-helper-reset ui-helper-clearfix">
 		  <li class="ui-widget-content ui-corner-tr" value="1">
 		    <h5 class="ui-widget-header">TextBox</h5>
 		    <img src="resources/img/icon_textbox.png" width="96" height="72">
 		  </li>
-		  <li class="ui-widget-content ui-corner-tr" value="2">
+		  <!-- <li class="ui-widget-content ui-corner-tr" value="2">
 		    <h5 class="ui-widget-header">Table</h5>
 		    <img src="resources/img/icon_table.png" width="96" height="72">
 		  </li>
 		  <li class="ui-widget-content ui-corner-tr" value="3">
 		    <h5 class="ui-widget-header">이미지</h5>
-		    <img src="resources/img/ebphone.jpg" alt="On top of Kozi kopka" width="96" height="72">
-		  </li>
+		    <img src="resources/img/ebphone.jpg" width="96" height="72">
+		  </li> -->
 		</ul>
+		    <input type=file name="file1" id="upload" style="display: none;" accept=".gif, .jpg, .png, .mp4">
+		    <img class="addfile" src="resources/img/plus.png" width="96" height="72" onclick="document.all.file1.click()">
+		  	
 	</div>
 </div>
 
-	<div id="tdiv">
-		<table id="ttd">
-    	<thead>
-        <tr>
-            <th>Name</th>
-            <th>Position</th>
-            <th>Office</th>
-            <th>Age</th>
-            <th>Start date</th>
-            <th>Salary</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        	<td>1</td>
-        	<td>2</td>
-        	<td>3</td>
-        	<td>4</td>
-        	<td>5</td>
-        	<td>6</td>
-        </tr>
-        <tr>
-        	<td>1</td>
-        	<td>2</td>
-        	<td>3</td>
-        	<td>4</td>
-        	<td>5</td>
-        	<td>6</td>
-        </tr>
-        </tbody>
-	</table>
-	</div>
-	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 	
 	<div class="textEditBox" id="textEditBox">
@@ -425,7 +482,7 @@ $( function() {
 	        <option value="7">30px</option>
     	</select>
 		
-		<img src="/www/resources/img/text_color.png" class="textEditIcon">
+		
     	<select id="foreColor" width="50px">
 	        <option value="">글자 색깔</option>
 	        <option value="#f00" style="background-image: url('/www/resources/img/bold.png');">빨강</option>
@@ -435,7 +492,7 @@ $( function() {
 	        <option value="#000">검정</option>
     	</select>
 
-		<img src="/www/resources/img/text_bgcolor.png" class="textEditIcon">
+		
     	<select id="hiliteColor" width="50px">
 	        <option value="">글자 배경색</option>
 	        <option value="#f00">빨강</option>
@@ -446,5 +503,11 @@ $( function() {
     	</select>
 
   </div>
+  
+  <div id="ttdiv"></div>
+  
+  <form action="jspFileTest" method="post" id="saveForm">
+  	<input type="hidden" id="saveDiv" name="html" value="">
+  </form>
 </body>
 </html>

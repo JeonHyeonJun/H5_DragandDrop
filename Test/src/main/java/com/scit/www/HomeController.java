@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -19,7 +20,10 @@ import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 
 
@@ -74,8 +78,10 @@ public class HomeController {
 	public String wigetTest2() {
 		return "jquerydnd";
 	}
-	@RequestMapping(value = "jspFileTest", method = RequestMethod.GET)
-	public String jspFileTest() {
+	@RequestMapping(value = "jspFileTest", method = RequestMethod.POST)
+	public String jspFileTest(Model model, String html) {
+		System.out.println("html: "+html);
+		model.addAttribute("html", html);
 		return "jspFileTest";
 	}
 	@RequestMapping(value = "angularTest", method = RequestMethod.GET)
@@ -115,6 +121,31 @@ public class HomeController {
 		return "fileIcon";
 	}
 	
+	//위젯 이미지추가controller
+	@ResponseBody
+	@RequestMapping(value="fileupload", method = RequestMethod.POST)
+	public String fileupload(MultipartHttpServletRequest request) {
+        Iterator<String> itr =  request.getFileNames();
+        String fullpath = "";
+        if(itr.hasNext()) {
+            MultipartFile mpf = request.getFile(itr.next());
+            System.out.println(request.getServletContext().getRealPath("/resource/image/"));
+            try {
+                System.out.println("file length : " + mpf.getBytes().length);
+                System.out.println("file name : " + mpf.getOriginalFilename());
+        		if (!mpf.isEmpty()) {
+        			String savedfile = FileService.saveFile(mpf, request.getServletContext().getRealPath("/resources/image/"));
+        			fullpath =  "./resources/image/" +savedfile;
+        		}
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+            return fullpath;
+        } else {
+            return fullpath;
+        }
+    }
 	
 	@RequestMapping(value="download", method=RequestMethod.GET)
 	public void fileDownload(String originfile, String savefile, HttpServletResponse response){
@@ -150,4 +181,10 @@ public class HomeController {
 		}
 	}
 	
+	@RequestMapping(value="portSave", method = RequestMethod.POST)
+	public String portSave(String html, Model model) {
+		System.out.println("컨트롤러:"+html);
+		model.addAttribute("html", html);
+		return "jspFileTest";
+	}
 }
