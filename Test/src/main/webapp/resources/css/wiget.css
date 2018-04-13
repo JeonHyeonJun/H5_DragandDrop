@@ -1,0 +1,105 @@
+@CHARSET "UTF-8";
+
+#wigetBox {
+	float: left;
+	width: 65%;
+	min-height: 12em;
+}
+
+.wigetBox.custom-state-active {
+	background: #eee;
+}
+
+.wigetBox li {
+	float: left;
+	width: 96px;
+	height: 72px;
+	padding: 0.4em;
+	margin: 0 0.4em 0.4em 0;
+	text-align: center;
+}
+
+.wigetBox li h5 {
+	margin: 0 0 0.4em;
+	cursor: move;
+}
+
+.wigetBox li a {
+	float: right;
+}
+
+.wigetBox li a.ui-icon-zoomin {
+	float: left;
+}
+
+.wigetBox li img {
+	width: 100%;
+	height: 70%;
+	cursor: move;
+}
+
+#trash {
+	float: left;
+	width: 32%;
+	min-height: 18em;
+	padding: 1%;
+}
+
+#trash h4 {
+	line-height: 16px;
+	margin: 0 0 0.4em;
+}
+
+#trash h4 .ui-icon {
+	float: left;
+}
+
+#trash .wigetBox h5 {
+	display: none;
+}
+
+.sidebox {
+	background-color: #F0F0F0;
+	position: absolute;
+	width: 120px;
+	top: 100px;
+	right: 300px;
+	padding: 3px 10px
+}
+
+.textEditBox {
+	background-color: #CCFFFF;
+	width: 390px;
+	padding: 10px;
+	position: absolute;
+	top: 0px;
+}
+
+.textEditIcon {
+	width: 20px;
+	height: 20px;
+	border: solid 1px black;
+	cursor: pointer;
+}
+
+.edit_text {
+	width: 100%;
+	height: 100%;
+	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;  
+    box-sizing: border-box; 
+	
+}
+
+.img {
+	width: 100%;
+	height: 100%;
+}
+
+.addfile {
+	cursor: pointer;
+}
+
+.close {
+	display: none;
+}

@@ -84,6 +84,12 @@ public class HomeController {
 		model.addAttribute("html", html);
 		return "jspFileTest";
 	}
+	@RequestMapping(value = "portUpdate", method = RequestMethod.POST)
+	public String portUpdate(Model model, String html) {
+		System.out.println("html: "+html);
+		model.addAttribute("html", html);
+		return "jquerydnd";
+	}
 	@RequestMapping(value = "angularTest", method = RequestMethod.GET)
 	public String angularTest() {
 		return "angularTest";
