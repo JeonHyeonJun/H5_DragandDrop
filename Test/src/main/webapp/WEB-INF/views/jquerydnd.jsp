@@ -14,28 +14,76 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="resources/css/wiget.css">
 
+<!-- graph -->
+<script src="resources/graph/js/ion.rangeSlider.js"></script>
+<script src="resources/graph/js/colpick.js" type="text/javascript"></script>
+<script src="resources/graph/dist/roundslider.min.js"></script>
+<link rel="stylesheet" href="resources/graph/css/normalize.css" />
+<link rel="stylesheet" href="resources/graph/css/ion.rangeSlider.css" />
+<link rel="stylesheet" href="resources/graph/css/ion.rangeSlider.skinFlat.css" />
+<link rel="stylesheet" href="resources/graph/css/colpick/colpick.css" type="text/css"/>
+<link href="resources/graph/dist/roundslider.min.css" rel="stylesheet" />
+
 <style type="text/css">
-	.close {
-		cursor: pointer;
-	}
+
+.color-box {
+	float:left;
+	width:30px;
+	height:30px;
+	margin:5px;
+	border: 1px solid white;
+}
+.rs-tooltip .rs-tooltip.edit{
+	font-size: 20px;
+}
+.divTable{
+	display: table;
+	width: 100%;
+}
+.divTableRow {
+	display: table-row;
+}
+.divTableHeading {
+	background-color: #EEE;
+	display: table-header-group;
+}
+.divTableCell, .divTableHead {
+	border: 1px solid #999999;
+	display: table-cell;
+	padding: 3px 10px;
+}
+.divTableHeading {
+	background-color: #EEE;
+	display: table-header-group;
+	font-weight: bold;
+}
+.divTableFoot {
+	background-color: #EEE;
+	display: table-footer-group;
+	font-weight: bold;
+}
+.divTableBody {
+	display: table-row-group;
+}
 </style>
+
 <script>
 document.execCommand('styleWithCSS', false, true);
 
 document.execCommand('insertBrOnReturn', false, true);
 
 $( function() {
-
+	$('#textEditBox').draggable();
+	$('#sidebox').draggable();
 	var pageX = 0;		//위젯드롭했을때 좌표값 받기위한변수x
 	var pageY = 0;		//위젯드롭했을때 좌표값 받기위한변수y
-	var click = 0;
 	$(document).mousemove(function(e){
 		//마우스 움직일때 좌표저장
 		pageX = e.pageX;		
 		pageY = e.pageY;
      });
 	
-	var valueNum = 4;	//임의의 파일(이미지,동영상)추가에 줄 값
+	var valueNum = 5;	//임의의 파일(이미지,동영상)추가에 줄 값
 	
 	//스크롤에 맞춰 따라다니는 위젯박스+텍스트에디터
 	var currentPosition = parseInt($("#sidebox").css("top")); 
@@ -67,6 +115,8 @@ $( function() {
 			maxWidth: 1000,
 			autoHide: true
 		});
+		$trash.css('width', '1000px');
+		$trash.css('height', '700px');
 	}
 	
     
@@ -113,22 +163,20 @@ $( function() {
 			//textBox위젯기능
 			if(value == "1"){
 				//텍스트박스 html태그 변수생성
-				var text = "<div class='drag_text' style='position:absolute; height:100px; width: 100px; left:"+x+"px; top:"+y+"px; border: 1px black solid' >"
-						 + "<img class='close' style='position:absolute;' src='resources/img/close.png' width='20px' height='20px'><div contenteditable='true' class='edit_text'></div></div>";
+				var text = "<div class='drag_text' style='position:absolute; height:100px; width: 100px; left:"+x+"px; top:"+y+"px;' >"
+						 + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+						 + "<div contenteditable='true' class='edit_text'></div></div>";
 				//포트폴리오영역에 텍스트박스html태그 추가
 				$(text).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					//resizable이벤트생성
-					$( ".drag_text").resizable({
-	        	    	containment: "#trash",		//resize를 포트폴리오영역이상으로 못하게하는 속성
-	        	    	autoHide: true				//영역안에 마우스 없으면 resizable표시 자동숨김
-	        	    });
+					initResizable('.drag_text', num);
 					
 					//위젯box에 텍스트박스 다시 생성
 					$("#wigetBox").prepend('<li class="ui-widget-content ui-corner-tr" value="1">'
 			    			 +'<h5 class="ui-widget-header">TextBox</h5>'
-			    			 +'<img src="resources/img/icon_textbox.png" alt="The peaks of High Tatras" width="96" height="72">'
+			    			 +'<img src="resources/img/icon_textbox.png" width="96" height="72">'
 			  				 +'</li>');	
 					   
 					//넣은 텍스트박스에 드래그이벤트생성
@@ -142,6 +190,8 @@ $( function() {
 						
 					});
 					
+					$('.edit_text').focus();
+					
 					$('.edit_text').blur(function() {
 						//focus벗어나면 편집불가능
 						$(".drag_text").draggable({
@@ -149,16 +199,7 @@ $( function() {
 						});
 					});	
 					
-					$('.close').on('click', function() {
-				    	var tag = $(this).parent();
-				    	tag.remove();
-					});
-					
-					$('.drag_text').hover(function() {
-						$(this).find('.close').css('display', 'block');
-					}, function() {
-						$(this).find('.close').css('display', 'none');
-					});
+					initCloseBtn('.drag_text');
 				});//fadeIn
 			}//if(value=="1")
 			
@@ -186,44 +227,100 @@ $( function() {
 				});
 			}
 			
-			//이미지위젯기능
+			//그래프
 			else if(value == "3"){
-				var img = '<div class="drag_img" style="border: 1px solid black; width:96px; height: 72px"><img src="resources/img/ebphone.jpg" class="img" alt="On top of Kozi kopka" width="96" height="72"></div>';
-				$(img).appendTo( $list ).fadeIn(function() {
+				var graph = "<div class='drag_graph' style='position:absolute; width:100px; height: 100px; left:"+x+"px; top:"+y+"px;'>"
+						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+						  + "<input type='text' class='graph' value='' /></div>";
+				
+				$(graph).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					
-					$( ".drag_img").resizable({
-	        	    	containment: "#trash"
-	        	    });
+					$(".graph").ionRangeSlider({
+						min : 0,
+						max : 100,
+						hide_min_max : true,
+					/*          hide_from_to: true  최소값 최대값 보이기*/
+					});
 					
+					initResizable('.drag_graph', num);
 					
-					$("#wigetBox li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="3">'
-			    			 +'<h5 class="ui-widget-header">이미지</h5>'
-			    			 +'<img src="resources/img/ebphone.jpg" alt="On top of Kozi kopka" width="96" height="72">'
-			  				 +'</li>');	
+					//넣었던 이미지 위젯에 다시생성
+					$("#wigetBox li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">그래프</h5>'
+			    			 +'<img src="resources/img/icon_graph.png">'
+			  				 +'</li>'); 
 					
-					$( ".drag_img").draggable({
+					//추가한 이미지에 드래그 이벤트 생성
+					$( ".drag_graph").draggable({
 						revert : "invalid"
 					});
+					
+					initCloseBtn('.drag_graph');
 				});
+				
+			}
+			
+			else if(value == "4"){
+				var graph = "<div class='drag_graph' style='position:absolute; width:200px; height:230px; left:"+x+"px; top:"+y+"px; border: 1px solid black'>"
+						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+						  + "<input type='button' value='편집' class='edit_graph_btn'>"
+						  + "<input type='button' value='드래그' class='drag_graph_btn'>"
+						  + "<div class='slider'></div>"
+						  + "</div>";
+				
+				$(graph).appendTo( $list ).fadeIn(function() {
+					$item.animate({ width: "96px" })
+						 .animate({ height: "72px" });
+					
+					change();
+					
+					initResizable('.drag_graph', num);
+					
+					//넣었던 이미지 위젯에 다시생성
+					$("#wigetBox li:nth-child(3)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">원그래프</h5>'
+			    			 +'<img src="resources/img/icon_graph.png">'
+			  				 +'</li>'); 
+					
+					//추가한 이미지에 드래그 이벤트 생성
+					$( ".drag_graph").draggable({
+						revert : "invalid"
+					});
+					
+			  		$('.edit_graph_btn').on('click', function() {
+			  			$(".slider").roundSlider("enable");
+			  			$( ".drag_graph").draggable({
+							disabled : true
+						});
+					});
+			  		
+					$('.drag_graph_btn').on('click', function() {
+						$(".slider").roundSlider("disable");
+						$( ".drag_graph").draggable({
+							disabled : false
+						});
+					});
+					
+					initCloseBtn('.drag_graph');
+				});
+				
 			}
 			
 			//추가한 이미지위젯 기능
 			else {
 				var src = $('#file'+num).attr('src');	//id가 'file'+num인태그에 src속성추가
 				//이미지 html태그 변수생성
-				var img = '<div class="drag_img" style="position:absolute; border: 1px solid black; width:96px; height: 72px; left:'+x+'px; top:'+y+'px;">'
-						+ '<img class="close" style="position:absolute;" src="resources/img/close.png" width="20px" height="20px"><img src="'+src+'" class="img"></div>';
+				var img = '<div class="drag_img" style="position:absolute; width:96px; height: 72px; left:'+x+'px; top:'+y+'px;">'
+						+ '<img class="close" style="position:absolute;" src="resources/img/close.png" width="20px" height="20px">'
+						+ '<img src="'+src+'" class="img"></div>';
 				//이미지 포트폴리오영역에 추가
 				$(img).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					//이미지에 resizable이벤트 생성
-					$( ".drag_img").resizable({
-	        	    	containment: "#trash",
-	        	    	autoHide: true
-	        	    });
+					initResizable('.drag_img', num);
 					
 					//넣었던 이미지 위젯에 다시생성
 					$("#wigetBox li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
@@ -236,16 +333,7 @@ $( function() {
 						revert : "invalid"
 					});
 
-					$('.close').on('click', function() {
-				    	var tag = $(this).parent();
-				    	tag.remove();
-					});
-					
-					$('.drag_img').hover(function() {
-						$(this).find('.close').css('display', 'block');
-					}, function() {
-						$(this).find('.close').css('display', 'none');
-					});
+					initCloseBtn('.drag_img');
 				});//fadeIn
 			}//else
 	        
@@ -325,14 +413,20 @@ $( function() {
     	$('#trash').resizable('destroy');				
     	$( ".drag_text").resizable('destroy');
     	$( ".drag_img").resizable('destroy');
-    	
+    	var width = $('#trash').css('width');
+    	var height = $('#trash').css('height');
 		var html = $('#trash').html();	//포트폴리오영역의 html태그 전부 변수에 저장
 		$('#saveDiv').val(html);		//hidden폼에 html태그 저장
+		$('#div_width').val(width);
+		$('#div_height').val(height);
 		$('#saveForm').submit();		//전송
 	});
     
     //포트폴리오 수정일때(이페이지에 넘어온값이 있을때)
     if(${html != null}) {
+    	$trash.css('width', '${width}');
+		$trash.css('height', '${height}');
+		
     	$trash.html('${html}');		//포트폴리오영역에 넘어온값 추가
     	//여러가지 이벤트 초기화
     	$trash.resizable({
@@ -361,47 +455,184 @@ $( function() {
 			revert : "invalid"
 		});
     	
-    	$( ".drag_text").resizable({
-	    	containment: "#trash",
-	    	autoHide: true
-	    });
+    	initResizable('.drag_text', 1);
+    	initResizable('.drag_graph', 4);
+    	initResizable('.drag_img', 0);
     	
-    	$( ".drag_img").resizable({
-	    	containment: "#trash",
-	    	autoHide: true
-	    });
-    	
-    	$('.close').on('click', function() {
-	    	var tag = $(this).parent();
-	    	tag.remove();
-		});
-    	
-    	$('.drag_text').hover(function() {
-			$(this).find('.close').css('display', 'block');
-		}, function() {
-			$(this).find('.close').css('display', 'none');
-		});
-    	
-    	$('.drag_img').hover(function() {
-			$(this).find('.close').css('display', 'block');
-		}, function() {
-			$(this).find('.close').css('display', 'none');
-		});
+    	initCloseBtn('.drag_text');
+    	initCloseBtn('.drag_graph');
+    	initCloseBtn('.drag_img');
     }//if
+    
     
     
 });	//function종료
 
+var shapeselect;
+var setr;
+var setp;
+var seth;
+var setb;
+var val;
+
+function initCloseBtn(className) {
+	$('.close').on('click', function() {
+    	var tag = $(this).parent();
+    	tag.remove();
+	});
+	
+	$(className).hover(function() {
+		$(this).find('.close').css('display', 'block');
+	}, function() {
+		$(this).find('.close').css('display', 'none');
+	});
+}
+
+function initResizable(className, valueNum) {
+	
+	if(valueNum == 4){
+		$(className).resizable({
+	    	containment: "#trash",
+	    	autoHide: true,
+	    	resize: function( event, ui ) {
+	    		$(this).children('.slider').roundSlider({
+	    			width : ui.size.width/5,
+	    			radius : (ui.size.height+ui.size.width)/4
+	    		})
+	    	}
+	    });
+	}
+	
+	else{
+		$(className).resizable({
+	    	containment: "#trash",
+	    	autoHide: true
+	    });
+	}
+	
+	
+}
+function change(){
+	 shapeselect = $("#target option:selected").text();
+		
+		$(".slider").roundSlider({
+			sliderType : "min-range",
+			width : 32,
+			radius : 100,
+			value : val,
+			keyboardAction : false,
+			mouseScrollAction : true,
+			handleShape : shapeselect
+		});
+		
+		$(".slider").on("change", function (e) {
+			val = e.value;
+		}); 
+		
+}
+
+$(function() {
+
+		$('#color-box-range').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#54BBE0',
+			onSubmit:function(hsb,hex,rgb,el) {
+				alert(hsb +"/" + hex + "/" + el);
+				$(el).css('background-color', '#'+hex);
+				setr = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-range-color').css('background-color', setr);
+				//change();
+			}
+		}).css('background-color', '#54BBE0');
+		
+	});
+$(function() {
+
+		$('#color-box-path').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#d4d0d4',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				setp = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-path-color').css('background-color', setp);
+				change();
+			}
+		}).css('background-color', '#d4d0d4');
+		
+	});
+$(function() {
+
+		$('#color-box-handle').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#838383',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				seth = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-handle').css('background-color', seth);
+				change();
+			}
+		}).css('background-color', '#838383');
+		
+	});
+$(function() {
+
+		$('#color-box-background').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#d4d0d4',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				setb = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-bg-color').css('background-color', setb);
+				change();
+			}
+		}).css('background-color', '#d4d0d4');
+		
+	});
+	
 </script>
   
 </head>
 <body>
+
+
+
+	<div>handleShape</div>
 	
+
+<select name="target" id="target" onchange="change()">
+    <option value="round">round</option>
+    <option value="dot">dot</option>
+    <option value="square">square</option>
+  </select>
+  
+<div class="divTable" style="border: 2px solid #000;">
+	<div class="divTableBody">
+		<div class="divTableRow">
+			<div class="divTableCell">range</div>
+			<div class="color-box" id="color-box-range"></div>
+			<div class="divTableCell">path</div>
+			<div class="color-box" id="color-box-path"></div>
+			<div class="divTableCell">handle</div>
+			<div class="color-box" id="color-box-handle"></div>
+			<div class="divTableCell">background</div>
+			<div class="color-box" id="color-box-background"></div>
+		</div>
+	</div>
+</div>
+<!-- DivTable.com -->
 
 <div class="ui-widget ui-helper-clearfix">
  
  	<!-- 포트폴리오 영역 -->
- 	<div id="trash" class="ui-widget-header" style=" top:100px; width: 1000px; height: 700px; border: 1px black solid"></div>
+ 	<div id="trash" class="ui-widget-header" style=" top:100px; border: 1px black solid"></div>
 	
 	<!-- 위젯영역 -->
 	<div id="sidebox" class="sidebox">
@@ -411,6 +642,18 @@ $( function() {
 		  <li class="ui-widget-content ui-corner-tr" value="1">
 		    <h5 class="ui-widget-header">TextBox</h5>
 		    <img src="resources/img/icon_textbox.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="2">
+		    <h5 class="ui-widget-header">테이블</h5>
+		    <img src="resources/img/icon_table.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="3">
+		    <h5 class="ui-widget-header">그래프</h5>
+		    <img src="resources/img/icon_graph.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="4">
+		    <h5 class="ui-widget-header">원그래프</h5>
+		    <img src="resources/img/icon_graph.png" width="96" height="72">
 		  </li>
 		</ul>
 		<input type=file name="file1" id="upload" style="display: none;" accept=".gif, .jpg, .png, .mp4">
@@ -477,6 +720,8 @@ $( function() {
   <!-- 포트폴리오 저장을 위한 폼 -->
   <form action="jspFileTest" method="post" id="saveForm">
   	<input type="hidden" id="saveDiv" name="html" value="">
+  	<input type="hidden" id="div_width" name="width" value="">
+  	<input type="hidden" id="div_height" name="height" value="">
   </form>
   
 </body>

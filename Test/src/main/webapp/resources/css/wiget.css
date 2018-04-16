@@ -102,4 +102,5 @@
 
 .close {
 	display: none;
+	cursor: pointer;
 }
