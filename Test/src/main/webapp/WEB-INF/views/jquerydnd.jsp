@@ -7,35 +7,67 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>jQuery UI Droppable - Simple photo manager</title>
-  
+
+<!-- jquery, jquery-ui, 위젯에 필요한 css -->
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="resources/css/wiget.css">
 
-<style type="text/css">
-	.close {
-		cursor: pointer;
-	}
-</style>
+<!-- graph -->
+<script src="resources/graph/js/ion.rangeSlider.js"></script>
+<script src="resources/graph/js/colpick.js" type="text/javascript"></script>
+<script src="resources/graph/dist/roundslider.min.js"></script>
+<link rel="stylesheet" href="resources/graph/css/normalize.css" />
+<link rel="stylesheet" href="resources/graph/css/ion.rangeSlider.css" />
+<link rel="stylesheet" href="resources/graph/css/ion.rangeSlider.skinFlat.css" />
+<link rel="stylesheet" href="resources/graph/css/colpick/colpick.css" type="text/css"/>
+<link href="resources/graph/dist/roundslider.min.css" rel="stylesheet" />
+
+<script src="resources/graph/js/jquery.barrating.min.js"></script>
+<link href="http://fonts.googleapis.com/css?family=Lato:300,400" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-1to10.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-movie.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-square.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-pill.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-reversed.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-horizontal.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/fontawesome-stars.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/css-stars.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/bootstrap-stars.css">
+<link rel="stylesheet" href="resources/graph/dist/barrating/themes/fontawesome-stars-o.css">
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+
+<!-- table -->
+<script src="resources/table/js/test4.js"></script>
+<link rel="stylesheet" href="resources/table/css/jquery.edittable.min.css">
 <script>
 document.execCommand('styleWithCSS', false, true);
 
 document.execCommand('insertBrOnReturn', false, true);
 
-$( function() {
+var shapeselect;
+var setr;
+var setp;
+var seth;
+var setb;
+var val;
 
+var eTable;
+
+$( function() {
+	$('#textEditBox').draggable();
+	$('#sidebox').draggable();
 	var pageX = 0;		//위젯드롭했을때 좌표값 받기위한변수x
 	var pageY = 0;		//위젯드롭했을때 좌표값 받기위한변수y
-	var click = 0;
 	$(document).mousemove(function(e){
 		//마우스 움직일때 좌표저장
 		pageX = e.pageX;		
 		pageY = e.pageY;
      });
 	
-	var valueNum = 4;	//임의의 파일(이미지,동영상)추가에 줄 값
+	var valueNum = 6;	//임의의 파일(이미지,동영상)추가에 줄 값
 	
 	//스크롤에 맞춰 따라다니는 위젯박스+텍스트에디터
 	var currentPosition = parseInt($("#sidebox").css("top")); 
@@ -67,6 +99,8 @@ $( function() {
 			maxWidth: 1000,
 			autoHide: true
 		});
+		$trash.css('width', '1000px');
+		$trash.css('height', '700px');
 	}
 	
     
@@ -113,22 +147,20 @@ $( function() {
 			//textBox위젯기능
 			if(value == "1"){
 				//텍스트박스 html태그 변수생성
-				var text = "<div class='drag_text' style='position:absolute; height:100px; width: 100px; left:"+x+"px; top:"+y+"px; border: 1px black solid' >"
-						 + "<img class='close' style='position:absolute;' src='resources/img/close.png' width='20px' height='20px'><div contenteditable='true' class='edit_text'></div></div>";
+				var text = "<div class='drag_text' style='position:absolute; height:100px; width: 100px; left:"+x+"px; top:"+y+"px;' >"
+						 + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+						 + "<div contenteditable='true' class='edit_text'></div></div>";
 				//포트폴리오영역에 텍스트박스html태그 추가
 				$(text).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					//resizable이벤트생성
-					$( ".drag_text").resizable({
-	        	    	containment: "#trash",		//resize를 포트폴리오영역이상으로 못하게하는 속성
-	        	    	autoHide: true				//영역안에 마우스 없으면 resizable표시 자동숨김
-	        	    });
+					initResizable('.drag_text', num);
 					
 					//위젯box에 텍스트박스 다시 생성
 					$("#wigetBox").prepend('<li class="ui-widget-content ui-corner-tr" value="1">'
 			    			 +'<h5 class="ui-widget-header">TextBox</h5>'
-			    			 +'<img src="resources/img/icon_textbox.png" alt="The peaks of High Tatras" width="96" height="72">'
+			    			 +'<img src="resources/img/icon_textbox.png" width="96" height="72">'
 			  				 +'</li>');	
 					   
 					//넣은 텍스트박스에 드래그이벤트생성
@@ -142,6 +174,8 @@ $( function() {
 						
 					});
 					
+					$('.edit_text').focus();
+					
 					$('.edit_text').blur(function() {
 						//focus벗어나면 편집불가능
 						$(".drag_text").draggable({
@@ -149,63 +183,160 @@ $( function() {
 						});
 					});	
 					
-					$('.close').on('click', function() {
-				    	var tag = $(this).parent();
-				    	tag.remove();
-					});
-					
-					$('.drag_text').hover(function() {
-						$(this).find('.close').css('display', 'block');
-					}, function() {
-						$(this).find('.close').css('display', 'none');
-					});
+					initCloseBtn('.drag_text');
 				});//fadeIn
 			}//if(value=="1")
 			
 			
 			//table위젯기능
 			else if(value == "2"){
-				var table = "<table border='1' class='tables'><tr><td><div contenteditable='true' style='width:100%; height:100%'></div></td><td><input type='text'></td></tr>"
-							+ "<tr><td><input type='text'></td><td><input type='text'></td></tr>"
-							+ "<tr><td><input type='text'></td><td><input type='text'></td></tr></table>";
+				var table = "<div class='drag_table' style='border: 1px solid black; position:absolute; left:"+x+"px; top:"+y+"px;'>"
+				  		  + "<textarea class='table' style='display:none; border:1px solid black' name='myField'></textarea>"
+				  		  + "</div>";
 				$(table).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					
-					$( ".tables").resizable({
-	        	    	containment: "#trash"
-	        	    });
+					eTable = $('.table').editTable();
 					
+					$("#updatetoggle").click(function() {
+						$(".addrowtd").slideToggle("slow");
+						$(".addcolth").slideToggle("slow");
+					});
+					$(".inputtable").resizable({
+						containment: "#trash",
+				    	autoHide: true,
+				    	resize: function( event, ui ) {
+				    		$(this).parents('.drag_table').css('width', ui.size.width);
+				    	}
+					});
 					
 					$("#wigetBox li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="2">'
 			    			 +'<h5 class="ui-widget-header">Table</h5>'
-			    			 +'<img src="resources/img/icon_table.png" alt="The peaks of High Tatras" width="96" height="72">'
+			    			 +'<img src="resources/img/icon_table.png" width="96" height="72">'
 			  				 +'</li>');	
 					
-					$( ".tables").draggable();
+					$( ".drag_table").draggable({
+						revert : "invalid"
+					});
+					
+					
 				});
 			}
 			
-			//이미지위젯기능
+			//그래프
 			else if(value == "3"){
-				var img = '<div class="drag_img" style="border: 1px solid black; width:96px; height: 72px"><img src="resources/img/ebphone.jpg" class="img" alt="On top of Kozi kopka" width="96" height="72"></div>';
-				$(img).appendTo( $list ).fadeIn(function() {
+				var graph = "<div class='drag_graph' style='position:absolute; width:100px; height: 100px; left:"+x+"px; top:"+y+"px;'>"
+						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+						  + "<input type='text' class='graph' value='' /></div>";
+				
+				$(graph).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					
-					$( ".drag_img").resizable({
-	        	    	containment: "#trash"
-	        	    });
+					$(".graph").ionRangeSlider({
+						min : 0,
+						max : 100,
+						hide_min_max : true,
+					/*          hide_from_to: true  최소값 최대값 보이기*/
+					});
 					
+					initResizable('.drag_graph', num);
 					
-					$("#wigetBox li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="3">'
-			    			 +'<h5 class="ui-widget-header">이미지</h5>'
-			    			 +'<img src="resources/img/ebphone.jpg" alt="On top of Kozi kopka" width="96" height="72">'
-			  				 +'</li>');	
+					//넣었던 이미지 위젯에 다시생성
+					$("#wigetBox li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">그래프</h5>'
+			    			 +'<img src="resources/img/icon_graph.png">'
+			  				 +'</li>'); 
 					
-					$( ".drag_img").draggable({
+					//추가한 이미지에 드래그 이벤트 생성
+					$( ".drag_graph").draggable({
 						revert : "invalid"
 					});
+					
+					initCloseBtn('.drag_graph');
+				});
+				
+			}
+			
+			else if(value == "4"){
+				var graph = "<div class='drag_graph' style='position:absolute; width:200px; height:230px; left:"+x+"px; top:"+y+"px;'>"
+						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+						  + "<input type='button' value='편집' class='edit_graph_btn'>"
+						  + "<input type='button' value='드래그' class='drag_graph_btn'>"
+						  + "<div class='slider'></div>"
+						  + "</div>";
+				
+				$(graph).appendTo( $list ).fadeIn(function() {
+					$item.animate({ width: "96px" })
+						 .animate({ height: "72px" });
+					
+					change();
+					
+					initResizable('.drag_graph', num);
+					
+					//넣었던 이미지 위젯에 다시생성
+					$("#wigetBox li:nth-child(3)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">원그래프</h5>'
+			    			 +'<img src="resources/img/icon_graph.png">'
+			  				 +'</li>'); 
+					
+					//추가한 이미지에 드래그 이벤트 생성
+					$( ".drag_graph").draggable({
+						revert : "invalid"
+					});
+					
+			  		$('.edit_graph_btn').on('click', function() {
+			  			$(".slider").roundSlider("enable");
+			  			$( ".drag_graph").draggable({
+							disabled : true
+						});
+					});
+			  		
+					$('.drag_graph_btn').on('click', function() {
+						$(".slider").roundSlider("disable");
+						$( ".drag_graph").draggable({
+							disabled : false
+						});
+					});
+					
+					initCloseBtn('.drag_graph');
+				});
+				
+			}
+			
+			else if(value == "5"){
+				var graph = '<div class="drag_stargraph" style="width:100px;">'
+						  + '<img class="close" src="resources/img/close.png" width="20px" height="20px">'
+						  + 	'<select class="example">'
+				  		  + 		'<option value="1">1</option>'
+				  		  + 		'<option value="2">2</option>'
+				  		  + 		'<option value="3">3</option>'
+				  		  + 		'<option value="4">4</option>'
+				  		  + 		'<option value="5">5</option>'
+				  		  + 	'</select>'
+				  		  + '</div>';
+				  		  
+				$(graph).appendTo( $list ).fadeIn(function() {
+					$item.animate({ width: "96px" })
+						 .animate({ height: "72px" });
+					
+					$('.example').barrating({
+				        theme: 'fontawesome-stars'
+				      });
+					
+					//넣었던 이미지 위젯에 다시생성
+					$("#wigetBox li:nth-child(4)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">별그래프</h5>'
+			    			 +'<img src="resources/img/icon_graph.png">'
+			  				 +'</li>'); 
+					
+					//추가한 이미지에 드래그 이벤트 생성
+					$( ".drag_stargraph").draggable({
+						revert : "invalid"
+					});
+					
+					initCloseBtn('.drag_stargraph');
 				});
 			}
 			
@@ -213,17 +344,15 @@ $( function() {
 			else {
 				var src = $('#file'+num).attr('src');	//id가 'file'+num인태그에 src속성추가
 				//이미지 html태그 변수생성
-				var img = '<div class="drag_img" style="position:absolute; border: 1px solid black; width:96px; height: 72px; left:'+x+'px; top:'+y+'px;">'
-						+ '<img class="close" style="position:absolute;" src="resources/img/close.png" width="20px" height="20px"><img src="'+src+'" class="img"></div>';
+				var img = '<div class="drag_img" style="position:absolute; width:96px; height: 72px; left:'+x+'px; top:'+y+'px;">'
+						+ '<img class="close" style="position:absolute;" src="resources/img/close.png" width="20px" height="20px">'
+						+ '<img src="'+src+'" class="img"></div>';
 				//이미지 포트폴리오영역에 추가
 				$(img).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					//이미지에 resizable이벤트 생성
-					$( ".drag_img").resizable({
-	        	    	containment: "#trash",
-	        	    	autoHide: true
-	        	    });
+					initResizable('.drag_img', num);
 					
 					//넣었던 이미지 위젯에 다시생성
 					$("#wigetBox li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
@@ -236,16 +365,7 @@ $( function() {
 						revert : "invalid"
 					});
 
-					$('.close').on('click', function() {
-				    	var tag = $(this).parent();
-				    	tag.remove();
-					});
-					
-					$('.drag_img').hover(function() {
-						$(this).find('.close').css('display', 'block');
-					}, function() {
-						$(this).find('.close').css('display', 'none');
-					});
+					initCloseBtn('.drag_img');
 				});//fadeIn
 			}//else
 	        
@@ -314,6 +434,7 @@ $( function() {
       
 	//실험용버튼
     $('#seebtn').on('click', function () {
+    	
 		var save = $('#trash').html();
 		$('#ttdiv').text(save);
 	});
@@ -326,13 +447,37 @@ $( function() {
     	$( ".drag_text").resizable('destroy');
     	$( ".drag_img").resizable('destroy');
     	
+    	var json = JSON.parse(eTable.getJsonData());
+    	var cnt = 0;
+    	for(var i=0; i<json.length; i++){
+    		for(var j=0; j<json[i].length; j++){
+    			$(".inputtable .hi2td:eq("+cnt+")").html("<input type='text' value='"+json[i][j]+"'>");
+    			cnt++;
+    		}	
+    	}
+    	
+    	
+     	
+    	$(".addrowtd").hide();
+		$(".addcolth").hide();
+		$("#updatetoggle").hide();
+		$("#complete").hide();
+
+		
+    	var width = $('#trash').css('width');
+    	var height = $('#trash').css('height');
 		var html = $('#trash').html();	//포트폴리오영역의 html태그 전부 변수에 저장
 		$('#saveDiv').val(html);		//hidden폼에 html태그 저장
+		$('#div_width').val(width);
+		$('#div_height').val(height);
 		$('#saveForm').submit();		//전송
 	});
     
     //포트폴리오 수정일때(이페이지에 넘어온값이 있을때)
     if(${html != null}) {
+    	$trash.css('width', '${width}');
+		$trash.css('height', '${height}');
+		
     	$trash.html('${html}');		//포트폴리오영역에 넘어온값 추가
     	//여러가지 이벤트 초기화
     	$trash.resizable({
@@ -361,47 +506,192 @@ $( function() {
 			revert : "invalid"
 		});
     	
-    	$( ".drag_text").resizable({
-	    	containment: "#trash",
-	    	autoHide: true
-	    });
     	
-    	$( ".drag_img").resizable({
-	    	containment: "#trash",
-	    	autoHide: true
-	    });
+    	initResizable('.drag_text', 1);
+    	initResizable('.drag_graph', 4);
+    	initResizable('.drag_img', 0);
     	
-    	$('.close').on('click', function() {
-	    	var tag = $(this).parent();
-	    	tag.remove();
-		});
-    	
-    	$('.drag_text').hover(function() {
-			$(this).find('.close').css('display', 'block');
-		}, function() {
-			$(this).find('.close').css('display', 'none');
-		});
-    	
-    	$('.drag_img').hover(function() {
-			$(this).find('.close').css('display', 'block');
-		}, function() {
-			$(this).find('.close').css('display', 'none');
-		});
-    }//if
-    
-    
-});	//function종료
+    	initCloseBtn('.drag_text');
+    	initCloseBtn('.drag_graph');
+    	initCloseBtn('.drag_stargraph');
+    	initCloseBtn('.drag_img');
 
+    	
+    	$(".addrowtd").show();
+		$(".addcolth").show();
+		$("#updatetoggle").show();
+		$("#complete").show();
+    	
+	
+		
+    }//if
+	
+    
+
+});	/* //function종료 */
+
+function complete(){
+	 $(".inputtable").resizable('destroy');
+	 $(".hi2td").resizable('destroy');
+}
+
+function initCloseBtn(className) {
+	$('.close').on('click', function() {
+    	var tag = $(this).parent();
+    	tag.remove();
+	});
+	
+	$(className).hover(function() {
+		$(this).find('.close').css('display', 'block');
+	}, function() {
+		$(this).find('.close').css('display', 'none');
+	});
+}
+
+function initResizable(className, valueNum) {
+	
+	if(valueNum == 4){
+		$(className).resizable({
+	    	containment: "#trash",
+	    	autoHide: true,
+	    	resize: function( event, ui ) {
+	    		$(this).children('.slider').roundSlider({
+	    			width : ui.size.width/5,
+	    			radius : (ui.size.height+ui.size.width)/4
+	    		})
+	    	}
+	    });
+	}
+	
+	else{
+		$(className).resizable({
+	    	containment: "#trash",
+	    	autoHide: true
+	    });
+	}
+	
+	
+}
+function change(){
+	 shapeselect = $("#target option:selected").text();
+		
+		$(".slider").roundSlider({
+			sliderType : "min-range",
+			width : 32,
+			radius : 100,
+			value : val,
+			keyboardAction : false,
+			mouseScrollAction : true,
+			handleShape : shapeselect
+		});
+		
+		$(".slider").on("change", function (e) {
+			val = e.value;
+		}); 
+		
+}
+
+$(function() {
+
+		$('#color-box-range').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#54BBE0',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				setr = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-range-color').css('background-color', setr);
+				//change();
+			}
+		}).css('background-color', '#54BBE0');
+		
+	});
+$(function() {
+
+		$('#color-box-path').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#d4d0d4',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				setp = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-path-color').css('background-color', setp);
+				change();
+			}
+		}).css('background-color', '#d4d0d4');
+		
+	});
+$(function() {
+
+		$('#color-box-handle').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#838383',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				seth = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-handle').css('background-color', seth);
+				change();
+			}
+		}).css('background-color', '#838383');
+		
+	});
+$(function() {
+
+		$('#color-box-background').colpick({
+			colorScheme:'dark',
+			layout:'rgbhex',
+			color:'#d4d0d4',
+			onSubmit:function(hsb,hex,rgb,el) {
+				$(el).css('background-color', '#'+hex);
+				setb = '#'+hex;
+				$(el).colpickHide();
+				$('.rs-bg-color').css('background-color', setb);
+				change();
+			}
+		}).css('background-color', '#d4d0d4');
+		
+	});
+	
 </script>
   
 </head>
 <body>
+
+
+<div id="graphColor">
+	<div>handleShape</div>
 	
+	<select name="target" id="target" onchange="change()">
+	    <option value="round">round</option>
+	    <option value="dot">dot</option>
+	    <option value="square">square</option>
+	  </select>
+	  
+	<div class="divTable" style="border: 2px solid #000;">
+		<div class="divTableBody">
+			<div class="divTableRow">
+				<div class="divTableCell">range</div>
+				<div class="color-box" id="color-box-range"></div>
+				<div class="divTableCell">path</div>
+				<div class="color-box" id="color-box-path"></div>
+				<div class="divTableCell">handle</div>
+				<div class="color-box" id="color-box-handle"></div>
+				<div class="divTableCell">background</div>
+				<div class="color-box" id="color-box-background"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- DivTable.com -->
 
 <div class="ui-widget ui-helper-clearfix">
  
  	<!-- 포트폴리오 영역 -->
- 	<div id="trash" class="ui-widget-header" style=" top:100px; width: 1000px; height: 700px; border: 1px black solid"></div>
+ 	<div id="trash" class="ui-widget-header" style=" top:100px; border: 1px black solid"></div>
 	
 	<!-- 위젯영역 -->
 	<div id="sidebox" class="sidebox">
@@ -411,6 +701,22 @@ $( function() {
 		  <li class="ui-widget-content ui-corner-tr" value="1">
 		    <h5 class="ui-widget-header">TextBox</h5>
 		    <img src="resources/img/icon_textbox.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="2">
+		    <h5 class="ui-widget-header">Table</h5>
+		    <img src="resources/img/icon_table.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="3">
+		    <h5 class="ui-widget-header">바그래프</h5>
+		    <img src="resources/img/icon_graph.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="4">
+		    <h5 class="ui-widget-header">원그래프</h5>
+		    <img src="resources/img/icon_graph.png" width="96" height="72">
+		  </li>
+		  <li class="ui-widget-content ui-corner-tr" value="5">
+		    <h5 class="ui-widget-header">별그래프</h5>
+		    <img src="resources/img/icon_graph.png" width="96" height="72">
 		  </li>
 		</ul>
 		<input type=file name="file1" id="upload" style="display: none;" accept=".gif, .jpg, .png, .mp4">
@@ -429,7 +735,7 @@ $( function() {
 	<img src="/www/resources/img/left_sort.png" class="textEditIcon" id="justifyLeft">
 	<img src="/www/resources/img/center_sort.png" class="textEditIcon" id="justifyCenter">
 	<img src="/www/resources/img/right_sort.png" class="textEditIcon" id="justifyRight">
-	
+	<button id='updatetoggle'>테이블 수정</button>
 	<br>
 	<select id="fontName" width="50px">
 		<option value="">글꼴</option>
@@ -463,7 +769,7 @@ $( function() {
 
 		
 	<select id="hiliteColor" width="50px">
-		<option value="">글자 배경색</option>
+		<option value="">글자배경</option>
 		<option value="#f00">빨강</option>
 		<option value="#00f">파랑</option>
 		<option value="#0f0">초록</option>
@@ -472,11 +778,17 @@ $( function() {
 	</select>
 </div>
   
+  
+  
+	<button id="complete" onclick="complete()">완료</button>
+	
   <div id="ttdiv"></div>
   
   <!-- 포트폴리오 저장을 위한 폼 -->
   <form action="jspFileTest" method="post" id="saveForm">
   	<input type="hidden" id="saveDiv" name="html" value="">
+  	<input type="hidden" id="div_width" name="width" value="">
+  	<input type="hidden" id="div_height" name="height" value="">
   </form>
   
 </body>

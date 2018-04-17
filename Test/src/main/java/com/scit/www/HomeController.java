@@ -79,15 +79,19 @@ public class HomeController {
 		return "jquerydnd";
 	}
 	@RequestMapping(value = "jspFileTest", method = RequestMethod.POST)
-	public String jspFileTest(Model model, String html) {
+	public String jspFileTest(Model model, String html, String width, String height) {
 		System.out.println("html: "+html);
 		model.addAttribute("html", html);
+		model.addAttribute("width", width);
+		model.addAttribute("height", height);
 		return "jspFileTest";
 	}
 	@RequestMapping(value = "portUpdate", method = RequestMethod.POST)
-	public String portUpdate(Model model, String html) {
+	public String portUpdate(Model model, String html, String width, String height) {
 		System.out.println("html: "+html);
 		model.addAttribute("html", html);
+		model.addAttribute("width", width);
+		model.addAttribute("height", height);
 		return "jquerydnd";
 	}
 	@RequestMapping(value = "angularTest", method = RequestMethod.GET)
