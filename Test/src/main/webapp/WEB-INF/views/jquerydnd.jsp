@@ -40,8 +40,16 @@
 <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
 
 <!-- table -->
-<script src="resources/table/js/test4.js"></script>
-<link rel="stylesheet" href="resources/table/css/jquery.edittable.min.css">
+
+
+<style type="text/css">
+	.ui-side1{
+		position: absolute;
+		left : 130px;
+		top : 250px;
+		display : none;
+	}
+</style>
 <script>
 document.execCommand('styleWithCSS', false, true);
 
@@ -55,8 +63,12 @@ var setb;
 var val;
 
 var eTable;
+var graph_click = false;
+
+var graphNum = 0;
 
 $( function() {
+	
 	$('#textEditBox').draggable();
 	$('#sidebox').draggable();
 	var pageX = 0;		//위젯드롭했을때 좌표값 받기위한변수x
@@ -103,6 +115,18 @@ $( function() {
 		$trash.css('height', '700px');
 	}
 	
+	$('#graph_1').on('click', function() {
+		if(graph_click){
+			$(this).children('ul').css('display', 'none');
+			graph_click = false;
+		}
+		else{
+			$(this).children('ul').css('display', 'block');
+			graph_click = true;
+		}
+			
+		
+	});
     
    
     // 위젯 드래그 이벤트 생성
@@ -113,9 +137,7 @@ $( function() {
 		helper: "clone",
 		cursor: "move"
     });
- 
-    
-    
+ 	
     
     // 포트폴리오 영역에 드롭이벤트 생성
     $trash.droppable({
@@ -190,8 +212,9 @@ $( function() {
 			
 			//table위젯기능
 			else if(value == "2"){
-				var table = "<div class='drag_table' style='border: 1px solid black; position:absolute; left:"+x+"px; top:"+y+"px;'>"
-				  		  + "<textarea class='table' style='display:none; border:1px solid black' name='myField'></textarea>"
+				var table = "<div class='drag_table' style='position:absolute; left:"+x+"px; top:"+y+"px;'>"
+						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
+				  		  + "<textarea class='table' style='display:none;' name='myField'></textarea>"
 				  		  + "</div>";
 				$(table).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
@@ -211,7 +234,7 @@ $( function() {
 				    	}
 					});
 					
-					$("#wigetBox li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="2">'
+					$("#wigetBox > li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="2">'
 			    			 +'<h5 class="ui-widget-header">Table</h5>'
 			    			 +'<img src="resources/img/icon_table.png" width="96" height="72">'
 			  				 +'</li>');	
@@ -220,33 +243,33 @@ $( function() {
 						revert : "invalid"
 					});
 					
-					
+					initCloseBtn('.drag_table');
 				});
 			}
 			
-			//그래프
+			//바그래프
 			else if(value == "3"){
 				var graph = "<div class='drag_graph' style='position:absolute; width:100px; height: 100px; left:"+x+"px; top:"+y+"px;'>"
-						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
-						  + "<input type='text' class='graph' value='' /></div>";
+						  + "<img class='close' src='resources/img/close.png' width='20px' height='20px'>"
+						  + "<input type='text' id='bargraph"+graphNum+"' value='' /></div>";
 				
 				$(graph).appendTo( $list ).fadeIn(function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					
-					$(".graph").ionRangeSlider({
+					$("#bargraph"+graphNum).ionRangeSlider({
 						min : 0,
 						max : 100,
-						hide_min_max : true,
+						hide_min_max : true
 					/*          hide_from_to: true  최소값 최대값 보이기*/
 					});
 					
 					initResizable('.drag_graph', num);
 					
 					//넣었던 이미지 위젯에 다시생성
-					$("#wigetBox li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
-			    			 +'<h5 class="ui-widget-header">그래프</h5>'
-			    			 +'<img src="resources/img/icon_graph.png">'
+					$("#graph_1 ul").prepend('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+			    			 +'<h5 class="ui-widget-header">바그래프</h5>'
+			    			 +'<img src="resources/img/icon_bargraph.png">'
 			  				 +'</li>'); 
 					
 					//추가한 이미지에 드래그 이벤트 생성
@@ -255,6 +278,8 @@ $( function() {
 					});
 					
 					initCloseBtn('.drag_graph');
+					
+					graphNum++;
 				});
 				
 			}
@@ -264,7 +289,7 @@ $( function() {
 						  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
 						  + "<input type='button' value='편집' class='edit_graph_btn'>"
 						  + "<input type='button' value='드래그' class='drag_graph_btn'>"
-						  + "<div class='slider'></div>"
+						  + "<div class='slider' id='slider"+graphNum+"'></div>"
 						  + "</div>";
 				
 				$(graph).appendTo( $list ).fadeIn(function() {
@@ -276,9 +301,9 @@ $( function() {
 					initResizable('.drag_graph', num);
 					
 					//넣었던 이미지 위젯에 다시생성
-					$("#wigetBox li:nth-child(3)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+					$("#graph_1 li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
 			    			 +'<h5 class="ui-widget-header">원그래프</h5>'
-			    			 +'<img src="resources/img/icon_graph.png">'
+			    			 +'<img src="resources/img/icon_circlegraph.png">'
 			  				 +'</li>'); 
 					
 					//추가한 이미지에 드래그 이벤트 생성
@@ -301,14 +326,16 @@ $( function() {
 					});
 					
 					initCloseBtn('.drag_graph');
+					
+					graphNum++;
 				});
 				
 			}
 			
 			else if(value == "5"){
-				var graph = '<div class="drag_stargraph" style="width:100px;">'
+				var graph = '<div class="drag_stargraph" style="width:100px; left:'+x+'px; top:'+y+'px;">'
 						  + '<img class="close" src="resources/img/close.png" width="20px" height="20px">'
-						  + 	'<select class="example">'
+						  + 	'<select id="stargraph'+graphNum+'">'
 				  		  + 		'<option value="1">1</option>'
 				  		  + 		'<option value="2">2</option>'
 				  		  + 		'<option value="3">3</option>'
@@ -321,14 +348,14 @@ $( function() {
 					$item.animate({ width: "96px" })
 						 .animate({ height: "72px" });
 					
-					$('.example').barrating({
+					$('#stargraph'+graphNum).barrating({
 				        theme: 'fontawesome-stars'
 				      });
 					
 					//넣었던 이미지 위젯에 다시생성
-					$("#wigetBox li:nth-child(4)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+					$("#graph_1 li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
 			    			 +'<h5 class="ui-widget-header">별그래프</h5>'
-			    			 +'<img src="resources/img/icon_graph.png">'
+			    			 +'<img src="resources/img/icon_stargraph.png">'
 			  				 +'</li>'); 
 					
 					//추가한 이미지에 드래그 이벤트 생성
@@ -337,6 +364,7 @@ $( function() {
 					});
 					
 					initCloseBtn('.drag_stargraph');
+					graphNum++;
 				});
 			}
 			
@@ -355,7 +383,7 @@ $( function() {
 					initResizable('.drag_img', num);
 					
 					//넣었던 이미지 위젯에 다시생성
-					$("#wigetBox li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
+					$("#wigetBox > li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'">'
 			    			 +'<h5 class="ui-widget-header">이미지</h5>'
 			    			 +'<img src="'+src+'" id="file'+num+'">'
 			  				 +'</li>');
@@ -411,7 +439,7 @@ $( function() {
 			dataType:"text",				
 			success:function(data){	
 				console.log(data);
-				$("#wigetBox li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+valueNum+'">'
+				$("#wigetBox > li:nth-last-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+valueNum+'">'
 		    			 +'<h5 class="ui-widget-header">이미지</h5>'
 		    			 +'<img src="'+data+'" width="96px" height="72px" id="file'+valueNum+'">'
 		  				 +'</li>');
@@ -434,7 +462,6 @@ $( function() {
       
 	//실험용버튼
     $('#seebtn').on('click', function () {
-    	
 		var save = $('#trash').html();
 		$('#ttdiv').text(save);
 	});
@@ -447,38 +474,45 @@ $( function() {
     	$( ".drag_text").resizable('destroy');
     	$( ".drag_img").resizable('destroy');
     	
-    	var json = JSON.parse(eTable.getJsonData());
-    	var cnt = 0;
-    	for(var i=0; i<json.length; i++){
-    		for(var j=0; j<json[i].length; j++){
-    			$(".inputtable .hi2td:eq("+cnt+")").html("<input type='text' value='"+json[i][j]+"'>");
-    			cnt++;
-    		}	
+    	if(eTable != null){
+    		var json = JSON.parse(eTable.getJsonData());
+        	var cnt = 0;
+        	for(var i=0; i<json.length; i++){
+        		for(var j=0; j<json[i].length; j++){
+        			$(".inputtable .hi2td:eq("+cnt+")").html("<input type='text' value='"+json[i][j]+"'>");
+        			cnt++;
+        		}	
+        	}
     	}
     	
-    	
-     	
     	$(".addrowtd").hide();
 		$(".addcolth").hide();
 		$("#updatetoggle").hide();
 		$("#complete").hide();
-
 		
+		$('.edit_graph_btn').css('display', 'none');
+		$('.drag_graph_btn').css('display', 'none');
+		
+		$('#graphNum').remove();
+		$('#trash').prepend('<input type="hidden" id="graphNum" value="'+graphNum+'">');
     	var width = $('#trash').css('width');
     	var height = $('#trash').css('height');
 		var html = $('#trash').html();	//포트폴리오영역의 html태그 전부 변수에 저장
 		$('#saveDiv').val(html);		//hidden폼에 html태그 저장
 		$('#div_width').val(width);
 		$('#div_height').val(height);
+		
 		$('#saveForm').submit();		//전송
 	});
     
     //포트폴리오 수정일때(이페이지에 넘어온값이 있을때)
     if(${html != null}) {
+    	
     	$trash.css('width', '${width}');
 		$trash.css('height', '${height}');
 		
     	$trash.html('${html}');		//포트폴리오영역에 넘어온값 추가
+    	graphNum = $('#graphNum').val();
     	//여러가지 이벤트 초기화
     	$trash.resizable({
     		maxWidth: 1000,
@@ -506,6 +540,17 @@ $( function() {
 			revert : "invalid"
 		});
     	
+    	$( ".drag_graph").draggable({
+			revert : "invalid"
+		});
+    	
+    	$( ".drag_stargraph").draggable({
+			revert : "invalid"
+		});
+    	
+    	$( ".drag_table").draggable({
+			revert : "invalid"
+		});
     	
     	initResizable('.drag_text', 1);
     	initResizable('.drag_graph', 4);
@@ -515,14 +560,15 @@ $( function() {
     	initCloseBtn('.drag_graph');
     	initCloseBtn('.drag_stargraph');
     	initCloseBtn('.drag_img');
-
+    	initCloseBtn('.drag_table');
     	
     	$(".addrowtd").show();
 		$(".addcolth").show();
 		$("#updatetoggle").show();
 		$("#complete").show();
     	
-	
+		$('.edit_graph_btn').css('display', 'block');
+		$('.drag_graph_btn').css('display', 'block');
 		
     }//if
 	
@@ -552,8 +598,8 @@ function initResizable(className, valueNum) {
 	
 	if(valueNum == 4){
 		$(className).resizable({
-	    	containment: "#trash",
-	    	autoHide: true,
+			containment: "#trash",
+			autoHide: true,
 	    	resize: function( event, ui ) {
 	    		$(this).children('.slider').roundSlider({
 	    			width : ui.size.width/5,
@@ -691,8 +737,12 @@ $(function() {
 <div class="ui-widget ui-helper-clearfix">
  
  	<!-- 포트폴리오 영역 -->
- 	<div id="trash" class="ui-widget-header" style=" top:100px; border: 1px black solid"></div>
-	
+ 	<c:if test="${html == null }">
+ 		<div id="trash" class="ui-widget-header" style=" top:100px; border: 1px black solid"></div>
+	</c:if>
+	<c:if test="${html != null }">
+ 		<div id="trash" class="ui-widget-header" style=" top:100px; border: 1px black solid"></div>
+	</c:if>
 	<!-- 위젯영역 -->
 	<div id="sidebox" class="sidebox">
 		<input type="button" value="미리보기" id="seebtn">
@@ -706,18 +756,32 @@ $(function() {
 		    <h5 class="ui-widget-header">Table</h5>
 		    <img src="resources/img/icon_table.png" width="96" height="72">
 		  </li>
-		  <li class="ui-widget-content ui-corner-tr" value="3">
-		    <h5 class="ui-widget-header">바그래프</h5>
+		  <li class="ui-widget-content ui-corner-tr" id="graph_1" style="cursor: pointer;">
+		    <h5 class="ui-widget-header">그래프</h5>
 		    <img src="resources/img/icon_graph.png" width="96" height="72">
+		    <ul class="wigetBox ui-helper-reset ui-helper-clearfix ui-side1">
+		    	<li class="ui-widget-content ui-corner-tr" value="3" >
+		    		<h5 class="ui-widget-header">바그래프</h5>
+		    		<img src="resources/img/icon_bargraph.png" width="96" height="72">
+		    	</li>
+		    	<li class="ui-widget-content ui-corner-tr" value="4" >
+		    		<h5 class="ui-widget-header">원그래프</h5>
+		    		<img src="resources/img/icon_circlegraph.png" width="96" height="72">
+		    	</li>
+		    	<li class="ui-widget-content ui-corner-tr" value="5" >
+		    		<h5 class="ui-widget-header">별그래프</h5>
+		    		<img src="resources/img/icon_stargraph.png" width="96" height="72">
+		    	</li>
+		    </ul>
 		  </li>
-		  <li class="ui-widget-content ui-corner-tr" value="4">
+		 <!--  <li class="ui-widget-content ui-corner-tr" value="4">
 		    <h5 class="ui-widget-header">원그래프</h5>
 		    <img src="resources/img/icon_graph.png" width="96" height="72">
 		  </li>
 		  <li class="ui-widget-content ui-corner-tr" value="5">
 		    <h5 class="ui-widget-header">별그래프</h5>
 		    <img src="resources/img/icon_graph.png" width="96" height="72">
-		  </li>
+		  </li> -->
 		</ul>
 		<input type=file name="file1" id="upload" style="display: none;" accept=".gif, .jpg, .png, .mp4">
 		<img class="addfile" src="resources/img/plus.png" width="96" height="72" onclick="document.all.file1.click()">
@@ -792,4 +856,6 @@ $(function() {
   </form>
   
 </body>
+<script src="resources/table/js/test4.js"></script>
+<link rel="stylesheet" href="resources/table/css/jquery.edittable.min.css">
 </html>

@@ -36,29 +36,31 @@
 <link rel="stylesheet" href="resources/graph/dist/barrating/themes/fontawesome-stars-o.css">
 <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
 
-<script src="resources/table/js/test4.js"></script>
-<link rel="stylesheet" href="resources/table/css/jquery.edittable.min.css">
 
 <script type="text/javascript">
 	$(function() {
+		
+		$('#see').html('${html}');
 		$('#update').on('click', function() {
 			$('#html').val('${html}');
 			$('#div_width').val('${width}');
 			$('#div_height').val('${height}');
 			$('#upForm').submit();
 		});
+		
 	})
 </script>
 </head>
 <body>
-	<h1>저장된 포트폴리오</h1>
 	<form action="portUpdate" method="post" id="upForm">
 		<input type="hidden" id="html" name="html">
 		<input type="hidden" id="div_width" name="width">
   		<input type="hidden" id="div_height" name="height">
 		<input type="button" id="update" value="수정">
 	</form>
-	<hr>
-	<div id="see">${html }</div>	
+	<div id="see"></div>	
 </body>
+<script src="resources/table/js/test4.js"></script>
+<link rel="stylesheet" href="resources/table/css/jquery.edittable.min.css">
+
 </html>

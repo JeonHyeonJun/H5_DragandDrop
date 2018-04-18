@@ -1,5 +1,4 @@
 (function ($, window, i) {
-
     'use strict';
 
     $.fn.editTable = function (options) { //edittable생성
