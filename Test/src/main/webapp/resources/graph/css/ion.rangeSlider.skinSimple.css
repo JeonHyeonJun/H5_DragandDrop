@@ -6,66 +6,66 @@
 /* =====================================================================================================================
 // Skin details */
 
-.irs-line-mid,
-.irs-line-left,
-.irs-line-right,
-.irs-bar,
-.irs-bar-edge,
-.irs-slider {
+.irs4-line-mid,
+.irs4-line-left,
+.irs4-line-right,
+.irs4-bar,
+.irs4-bar-edge,
+.irs4-slider {
     background: url(../img/sprite-skin-simple.png) repeat-x;
 }
 
-.irs {
+.irs4 {
     height: 40px;
 }
-.irs-with-grid {
+.irs4-with-grid {
     height: 60px;
 }
-.irs-line {
+.irs4-line {
     height: 6px; top: 25px;
 }
-    .irs-line-left {
+    .irs4-line-left {
         height: 6px;
         background-position: 0 -30px;
     }
-    .irs-line-mid {
+    .irs4-line-mid {
         height: 6px;
         background-position: 0 0;
     }
-    .irs-line-right {
+    .irs4-line-right {
         height: 6px;
         background-position: 100% -30px;
     }
 
-.irs-bar {
+.irs4-bar {
     height: 6px; top: 25px;
     background-position: 0 -60px;
 }
-    .irs-bar-edge {
+    .irs4-bar-edge {
         top: 25px;
         height: 6px; width: 7px;
         background-position: 0 -90px;
     }
 
-.irs-shadow {
+.irs4-shadow {
     height: 1px; top: 34px;
     background: #000;
     opacity: 0.75;
 }
-.lt-ie9 .irs-shadow {
+.lt-ie9 .irs4-shadow {
     filter: alpha(opacity=75);
 }
 
-.irs-slider {
+.irs4-slider {
     width: 8px; height: 15px;
     top: 21px;
     background-position: 0 -120px;
 }
-.irs-slider.state_hover, .irs-slider:hover {
+.irs4-slider.state_hover, .irs4-slider:hover {
     background-position: 0 -150px;
 }
 
-.irs-min, .irs-max {
+.irs4-min, .irs4-max {
     color: #c0c0c0;
     font-size: 10px; line-height: 1.333;
     text-shadow: none;
@@ -74,11 +74,11 @@
     -moz-border-radius: 3px;
     border-radius: 3px;
 }
-.lt-ie9 .irs-min, .lt-ie9 .irs-max {
+.lt-ie9 .irs4-min, .lt-ie9 .irs4-max {
     background: #3654b0;
 }
 
-.irs-from, .irs-to, .irs-single {
+.irs4-from, .irs4-to, .irs4-single {
     color: #000;
     font-size: 10px; line-height: 1.333;
     text-shadow: none;
@@ -87,16 +87,16 @@
     -moz-border-radius: 3px;
     border-radius: 3px;
 }
-.lt-ie9 .irs-from, .lt-ie9 .irs-to, .lt-ie9 .irs-single {
+.lt-ie9 .irs4-from, .lt-ie9 .irs4-to, .lt-ie9 .irs4-single {
     background: #d8dff3;
 }
 
-.irs-grid-pol {
+.irs4-grid-pol {
     background: #777;
 }
-.irs-grid-text {
+.irs4-grid-text {
     color: #e0e0e0;
 }
 
-.irs-disabled {
+.irs4-disabled {
 }
