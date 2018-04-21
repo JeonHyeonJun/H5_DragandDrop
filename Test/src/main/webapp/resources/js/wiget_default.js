@@ -101,10 +101,11 @@ function initResizable(className, valueNum) {
 			containment: "#trash",
 			autoHide: true,
 	    	resize: function( event, ui ) {
+	    		var id = $(this).children('.slider').attr('id');
 	    		$(this).children('.slider').roundSlider({
 	    			width : ui.size.width/5,
 	    			radius : (ui.size.height+ui.size.width)/4
-	    		})
+	    		});
 	    	}
 	    });
 	}
@@ -214,15 +215,13 @@ function insertWiget( $item, num, x, y ) {
 		else if(value == "3"){
 			var graph = "<div class='drag_graph' style='position:absolute; width:100px; height: 100px; left:"+x+"px; top:"+y+"px;'>"
 					  + "<img class='close' src='resources/img/close.png' width='20px' height='20px'>"
-					  + "<input type='text' id='bargraph"+graphNum+"' value='' /></div>";
+					  + "<input type='text' id='bargraph"+bar_graphNum+"' value='' /></div>";
 			
 			$(graph).appendTo( $list ).fadeIn(function() {
 				$item.animate({ width: "96px" })
 					 .animate({ height: "72px" });
 				
-				
-				
-				$("#bargraph"+graphNum).ionRangeSlider2({
+				$("#bargraph"+bar_graphNum).ionRangeSlider({
 					min : 0,
 					max : 100,
 					hide_min_max : true
@@ -245,7 +244,7 @@ function insertWiget( $item, num, x, y ) {
 				
 				initCloseBtn('.drag_graph');
 				
-				graphNum++;
+				bar_graphNum++;
 			});
 			
 		}
@@ -256,7 +255,7 @@ function insertWiget( $item, num, x, y ) {
 					  + "<img class='close' style='position:absolute; float:right;' src='resources/img/close.png' width='20px' height='20px'>"
 					  + "<input type='button' value='편집' class='edit_graph_btn'>"
 					  + "<input type='button' value='드래그' class='drag_graph_btn'>"
-					  + "<div class='slider' id='slider"+graphNum+"'></div>"
+					  + "<div class='slider' id='slider"+circle_graphNum+"'></div>"
 					  + "</div>";
 			
 			$(graph).appendTo( $list ).fadeIn(function() {
@@ -264,9 +263,10 @@ function insertWiget( $item, num, x, y ) {
 					 .animate({ height: "72px" });
 				
 				var type = $item.attr("type");
-				change(type, "slider"+graphNum);
-				initResizable('.drag_graph', num);
+				change(type, "slider"+circle_graphNum);
 				
+				
+				initResizable('.drag_graph', num);
 				//넣었던 이미지 위젯에 다시생성
 				if(type == 1){
 					$("#circle_graph > ul").prepend('<li class="ui-widget-content ui-corner-tr" value="'+num+'" type="1">'
@@ -296,14 +296,14 @@ function insertWiget( $item, num, x, y ) {
 				});
 				
 		  		$('.edit_graph_btn').on('click', function() {
-		  			$(".slider").roundSlider("enable");
+		  			$(this).siblings(".slider").roundSlider("enable");
 		  			$( ".drag_graph").draggable({
 						disabled : true
 					});
 				});
 		  		
 				$('.drag_graph_btn').on('click', function() {
-					$(".slider").roundSlider("disable");
+					$(this).siblings(".slider").roundSlider("disable");
 					$( ".drag_graph").draggable({
 						disabled : false
 					});
@@ -311,7 +311,7 @@ function insertWiget( $item, num, x, y ) {
 				
 				initCloseBtn('.drag_graph');
 				
-				graphNum++;
+				circle_graphNum++;
 			});
 			
 		}
@@ -320,7 +320,7 @@ function insertWiget( $item, num, x, y ) {
 		else if(value == "5"){
 			var graph = '<div class="drag_stargraph" style="position:absolute; width:100px; left:'+x+'px; top:'+y+'px;">'
 					  + '<img class="close" src="resources/img/close.png" width="20px" height="20px">'
-					  + 	'<select id="stargraph'+graphNum+'">'
+					  + 	'<select id="stargraph'+etc_graphNum+'">'
 			  		  + 		'<option value="1">1</option>'
 			  		  + 		'<option value="2">2</option>'
 			  		  + 		'<option value="3">3</option>'
@@ -335,36 +335,7 @@ function insertWiget( $item, num, x, y ) {
 				$item.animate({ width: "96px" })
 				 .animate({ height: "72px" });
 				
-				
-				if(id == "graph5_1"){
-					$('#stargraph'+graphNum).barrating({
-				        theme: 'bars-horizontal'
-				      });
-					$("#etc_graph ul").prepend('<li class="ui-widget-content ui-corner-tr" value="'+num+'" id="graph5_1">'
-			    			 +'<h5 class="ui-widget-header">horizontal</h5>'
-			  				 +'</li>'); 
-				}
-				else if(id == "graph5_2"){
-					$('#stargraph'+graphNum).barrating({
-						theme: 'bars-movie'
-				      });
-					$("#etc_graph li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'" id="graph5_2">'
-			    			 +'<h5 class="ui-widget-header">movie</h5>'
-			  				 +'</li>'); 
-				}
-				else if(id == "graph5_3"){
-					$('#stargraph'+graphNum).barrating({
-						theme: 'fontawesome-stars'
-				      });
-					$("#etc_graph li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'" id="graph5_3">'
-			    			 +'<h5 class="ui-widget-header">star</h5>'
-			  				 +'</li>'); 
-				}
-				
-				
-				
-				
-				
+				createEtcGraph(etc_graphNum, num, id, 1);
 				
 				//추가한 이미지에 드래그 이벤트 생성
 				$( ".drag_stargraph").draggable({
@@ -372,7 +343,7 @@ function insertWiget( $item, num, x, y ) {
 				});
 				
 				initCloseBtn('.drag_stargraph');
-				graphNum++;
+				etc_graphNum++;
 			});
 		}
 		
@@ -469,4 +440,77 @@ function imgUpload() {
 		});//ajax
 	});//change이벤트
 	
+}
+
+function createEtcGraph(etc_graphNum, num, id, g_value) {
+	if(id == "graph5_1"){
+		$('#stargraph'+etc_graphNum).barrating({
+	        theme: 'bars-horizontal',
+	        initialRating : g_value,
+			onDestroy : function(t, e) {
+				$('#stargraph'+etc_graphNum).attr("g_value", e);
+			}
+	      });
+		$('#stargraph'+etc_graphNum).attr("g_type", 1);
+		$("#etc_graph ul").prepend('<li class="ui-widget-content ui-corner-tr" value="'+num+'" id="graph5_1">'
+    			 +'<h5 class="ui-widget-header">horizontal</h5>'
+  				 +'</li>'); 
+	}
+	else if(id == "graph5_2"){
+		$('#stargraph'+etc_graphNum).barrating({
+			theme: 'bars-movie',
+			initialRating : g_value,
+			onDestroy : function(t, e) {
+				$('#stargraph'+etc_graphNum).attr("g_value", e);
+			}
+	      });
+		$('#stargraph'+etc_graphNum).attr("g_type", 2);
+		$("#etc_graph li:nth-child(1)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'" id="graph5_2">'
+    			 +'<h5 class="ui-widget-header">movie</h5>'
+  				 +'</li>'); 
+	}
+	else if(id == "graph5_3"){
+		$('#stargraph'+etc_graphNum).barrating({
+			theme: 'fontawesome-stars',
+			initialRating : g_value,
+			onDestroy : function(t, e) {
+				$('#stargraph'+etc_graphNum).attr("g_value", e);
+			}
+	      });
+		$('#stargraph'+etc_graphNum).attr("g_type", 3);
+		$("#etc_graph li:nth-child(2)").after('<li class="ui-widget-content ui-corner-tr" value="'+num+'" id="graph5_3">'
+    			 +'<h5 class="ui-widget-header">star</h5>'
+  				 +'</li>'); 
+	}
+}
+
+
+function updateEtcGraph(i, type, g_value) {
+	if(type == 1){
+		$('#stargraph'+i).barrating({
+    		theme: 'bars-horizontal',
+    		initialRating : g_value,
+			onDestroy : function(t, e) {
+				$('#stargraph'+i).attr("g_value", e);
+			}
+    	});
+	}
+	else if(type == 2){
+		$('#stargraph'+i).barrating({
+			theme: 'bars-movie',
+			initialRating : g_value,
+			onDestroy : function(t, e) {
+				$('#stargraph'+i).attr("g_value", e);
+			}
+    	});
+	}
+	else if(type == 3){
+		$('#stargraph'+i).barrating({
+			theme: 'fontawesome-stars',
+			initialRating : g_value,
+			onDestroy : function(t, e) {
+				$('#stargraph'+i).attr("g_value", e);
+			}
+    	});
+	}
 }

@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>jQuery UI Droppable - Simple photo manager</title>
+  <title>나만의 포트폴리오 만들기</title>
 
 <!-- jquery, jquery-ui, 위젯에 필요한 css -->
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="resources/graph/css/colpick/colpick.css" type="text/css"/>
 <link href="resources/graph/dist/roundslider.min.css" rel="stylesheet" />
 
-<script src="resources/graph/js/jquery.barrating.min.js"></script>
+<script src="resources/graph/js/jquery.barrating.js"></script>
 <link href="http://fonts.googleapis.com/css?family=Lato:300,400" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="resources/graph/dist/barrating/themes/bars-1to10.css">
@@ -75,7 +75,14 @@ var val;
 
 var eTable;
 var jsonData;
-var graphNum = 0;
+var bar_graphNum = 0;
+var circle_graphNum = 0;
+var etc_graphNum = 0;
+
+var g_width;
+var g_handleSize;
+var g_handelShape;
+var g_value;
 
 $( function() {
 	// 위젯박스, 포트폴리오영역 변수지정
@@ -131,8 +138,26 @@ $( function() {
 		$('.edit_graph_btn').css('display', 'none');
 		$('.drag_graph_btn').css('display', 'none');
 		
-		$('#graphNum').remove();
-		$('#trash').prepend('<input type="hidden" id="graphNum" value="'+graphNum+'">');
+		$('#bar_graphNum').remove();
+		$('#circle_graphNum').remove();
+		$('#etc_graphNum').remove();
+		$('#trash').prepend('<input type="hidden" id="bar_graphNum" value="'+bar_graphNum+'">');
+		$('#trash').prepend('<input type="hidden" id="circle_graphNum" value="'+circle_graphNum+'">');
+		$('#trash').prepend('<input type="hidden" id="etc_graphNum" value="'+etc_graphNum+'">');
+		
+		for(var i=0; i<etc_graphNum; i++){
+			$('#stargraph'+i).barrating('destroy');
+		}
+		
+		for(var i=0; i<bar_graphNum; i++){
+			var s = $("#bargraph"+i).data("ionRangeSlider");
+			if(typeof s === 'object')
+				s.destroy();
+			var bar = $("#bargraph"+i).val();
+			$("#bargraph"+i).attr("g_value", bar);
+		}
+		
+		
     	var width = $('#trash').css('width');
     	var height = $('#trash').css('height');
 		var html = $('#trash').html();	//포트폴리오영역의 html태그 전부 변수에 저장
@@ -155,7 +180,15 @@ $( function() {
     	addcol();
     	addrow();
     	
-    	graphNum = $('#graphNum').val();
+    	bar_graphNum = $('#bar_graphNum').val();
+    	circle_graphNum = $('#circle_graphNum').val();
+    	etc_graphNum = $('#etc_graphNum').val();
+    	
+    	
+    	for(var i=0; i<circle_graphNum; i++){
+    		createGraph(i);
+    	}
+    	
     	//여러가지 이벤트 초기화
     	$trash.resizable({
     		maxWidth: 1000,
@@ -213,12 +246,127 @@ $( function() {
 		$('.edit_graph_btn').css('display', 'block');
 		$('.drag_graph_btn').css('display', 'block');
 		
+		$('.edit_graph_btn').on('click', function() {
+  			$(this).siblings(".slider").roundSlider("enable");
+  			$( ".drag_graph").draggable({
+				disabled : true
+			});
+		});
+  		
+		$('.drag_graph_btn').on('click', function() {
+			$(this).siblings(".slider").roundSlider("disable");
+			$( ".drag_graph").draggable({
+				disabled : false
+			});
+		});
+		
+		for(var i=0; i<etc_graphNum; i++){
+			var type = $('#stargraph'+i).attr("g_type");
+			var g_value = $('#stargraph'+i).attr("g_value");
+			
+			updateEtcGraph(i, type, g_value);
+		}
+		
+		for(var i=0; i<bar_graphNum; i++){
+			$("#bargraph"+i).ionRangeSlider({
+				min : 0,
+				max : 100,
+				from : $("#bargraph"+i).attr("g_value"),
+				hide_min_max : true
+			/*          hide_from_to: true  최소값 최대값 보이기*/
+			});
+		}
+		
+		
     }//if
-	
     
-
 });	/* //function종료 */
 	
+function createGraph(i) {
+	var g_id = '#gslider'+i;
+	var ctx = document.createElement('canvas').getContext('2d');
+	g_width = $(g_id).attr("g_width");
+	g_radius = $(g_id).attr("g_radius");
+	g_handleSize = $(g_id).attr("g_handleSize");
+	g_handelShape = $(g_id).attr("g_handleShape");
+	g_value = $(g_id).attr("g_value");
+	g_type = $(g_id).attr("g_type");
+	
+	ctx.strokeStyle = $(g_id).attr("rrc_bg");
+	rrc_bg = ctx.strokeStyle;
+	ctx.strokeStyle = $(g_id).attr("rpc_bg");
+	rpc_bg = ctx.strokeStyle;
+	ctx.strokeStyle = $(g_id).attr("rh_bg");
+	rh_bg = ctx.strokeStyle;
+	ctx.strokeStyle = $(g_id).attr("rb_bg");
+	rb_bg = ctx.strokeStyle;
+	ctx.strokeStyle = $(g_id).attr("rb_bd");
+	rb_bd = ctx.strokeStyle;
+	ctx.strokeStyle = $(g_id).attr("rh_pd");
+	rh_pd = ctx.strokeStyle;
+	ctx.strokeStyle = $(g_id).attr("rhrf_bd");
+	rhrf_bd = ctx.strokeStyle;
+	
+	$('#slider'+i).roundSlider({
+		radius: g_radius,
+		width: g_width,
+		handleSize: g_handleSize,
+		handleShape: g_handelShape,
+		sliderType: "min-range",
+		value: g_value,
+		
+		create : function (e) {
+			graph = e.options;
+			g_width = graph.width;
+			g_radius = graph.radius;
+			g_handleSize = graph.handleSize;
+			g_handleShape = graph.handleShape;
+			g_value = graph.value;
+			$('#gslider'+i).remove();
+			$('#trash').prepend('<input type="hidden" id="gslider'+i+'" g_width="'+g_width+'" g_radius="'+g_radius+'" g_handleSize="'+g_handleSize+'" g_handleShape="'+g_handleShape+'" g_value="'+g_value+'"'
+					+' g_type="'+g_type+'" rrc_bg="'+rrc_bg+'" rpc_bg="'+rpc_bg+'" rh_bg="'+rh_bg+'" rh_pd="'+rh_pd+'" rhrf_bd="'+rhrf_bd+'" rb_bg="'+rb_bg+'" rb_bd="'+rb_bd+'">');
+		},
+		change : function(e) {
+			graph = e.options;
+			g_width = graph.width;
+			g_radius = graph.radius;
+			g_handleSize = graph.handleSize;
+			g_handleShape = graph.handleShape;
+			g_value = graph.value;
+			g_type = $(g_id).attr("g_type");
+			rrc_bg = $('#slider'+i+ " .rs-range-color").css('background-color');
+			rpc_bg = $('#slider'+i+ " .rs-path-color").css('background-color');
+			rh_bg = $('#slider'+i+ " .rs-handle").css('background-color');
+			rb_bg = $('#slider'+i+ " .rs-border").css('background-color');
+			rb_bd = $('#slider'+i+ " .rs-border").css('border-color');
+			rh_pd = $("#slider"+i+" .rs-handle").css('padding');
+			rhrf_bd = $("#slider"+i+" .rs-handle.rs-focus").css('border-color');
+			$('#gslider'+i).remove();
+			$('#trash').prepend('<input type="hidden" id="gslider'+i+'" g_width="'+g_width+'" g_radius="'+g_radius+'" g_handleSize="'+g_handleSize+'" g_handleShape="'+g_handleShape+'" g_value="'+g_value+'"'
+					+' g_type="'+g_type+'" rrc_bg="'+rrc_bg+'" rpc_bg="'+rpc_bg+'" rh_bg="'+rh_bg+'" rh_pd="'+rh_pd+'" rhrf_bd="'+rhrf_bd+'" rb_bg="'+rb_bg+'" rb_bd="'+rb_bd+'">');
+		}
+	});
+	if(g_type == 2){
+		$("#slider"+i+" .rs-range-color").css('background-color', rrc_bg);
+		$("#slider"+i+" .rs-path-color").css('background-color', rpc_bg);
+		$("#slider"+i+" .rs-handle").css('background-color', rh_bg);
+		$("#slider"+i+" .rs-border").css('background-color', rb_bg);
+	}
+	else if(g_type == 3){
+		$("#slider"+i+" .rs-range-color").css('background-color', rrc_bg);
+		$("#slider"+i+" .rs-handle").css('background-color', rh_bg);
+		$("#slider"+i+" .rs-border").css('border-color', rb_bd);
+	}
+	else if (g_type == 4){
+		$("#slider"+i+" .rs-range-color").css('background-color', rrc_bg);
+		$("#slider"+i+" .rs-path-color").css('background-color', rpc_bg);
+		$("#slider"+i+" .rs-handle").css('background-color', rh_bg);
+		$("#slider"+i+" .rs-handle").css('padding', rh_pd);
+		$("#slider"+i+" .rs-handle.rs-focus").css('border-color', rhrf_bd);
+		$("#slider"+i+" .rs-border").css('border-color', rb_bd);
+	}
+}
+
 </script>
   
 </head>
@@ -326,6 +474,9 @@ $( function() {
 	
 <!-- 텍스트에디터 영역 -->
 <div class="textEditBox" id="textEditBox">
+	<input type="button" id="tb" value="폭☆발">
+	<input type="button" id="tb2" value="청소">
+	<input type="button" id="tb3" value="복구">
 	<img src="/www/resources/img/bold.png" class="textEditIcon" id="bold" >
 	<img src="/www/resources/img/italic.png" class="textEditIcon" id="italic">
 	<img src="/www/resources/img/underline.png" class="textEditIcon" id="underLine">
@@ -390,4 +541,5 @@ $( function() {
 </body>
 <script src="resources/table/js/test4.js"></script>
 <link rel="stylesheet" href="resources/table/css/jquery.edittable.min.css">
+
 </html>

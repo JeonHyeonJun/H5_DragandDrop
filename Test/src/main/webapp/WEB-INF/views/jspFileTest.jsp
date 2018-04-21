@@ -39,8 +39,51 @@
 
 <script type="text/javascript">
 	$(function() {
-		
 		$('#see').html('${html}');
+		
+		
+		var etc_graphNum = $('#etc_graphNum').val();
+		var bar_graphNum = $('#bar_graphNum').val();
+		
+		for(var i=0; i<etc_graphNum; i++){
+			var type = $('#stargraph'+i).attr("g_type");
+			var g_value = $('#stargraph'+i).attr("g_value");
+			if(type == 1){
+				$('#stargraph'+i).barrating({
+		    		theme: 'bars-horizontal',
+		    		initialRating : g_value,
+					readonly : true
+		    	});
+			}
+			else if(type == 2){
+				$('#stargraph'+i).barrating({
+					theme: 'bars-movie',
+					initialRating : g_value,
+					readonly : true
+		    	});
+			}
+			else if(type == 3){
+				$('#stargraph'+i).barrating({
+					theme: 'fontawesome-stars',
+					initialRating : g_value,
+					readonly : true
+		    	});
+			}
+		}
+		
+		for(var i=0; i<bar_graphNum; i++){
+			$("#bargraph"+i).ionRangeSlider({
+				min : 0,
+				max : 100,
+				from : $("#bargraph"+i).attr("g_value"),
+				from_min : $("#bargraph"+i).attr("g_value"),
+				from_max : $("#bargraph"+i).attr("g_value"),
+				hide_min_max : true
+			/*          hide_from_to: true  최소값 최대값 보이기*/
+			});
+		}
+		
+		
 		$('#update').on('click', function() {
 			$('#html').val('${html}');
 			$('#div_width').val('${width}');

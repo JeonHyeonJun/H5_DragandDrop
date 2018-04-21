@@ -20,9 +20,7 @@
         factory(jQuery);
     }
 }(function ($) {
-
     var BarRating = (function() {
-
         function BarRating() {
             var self = this;
 
@@ -259,7 +257,7 @@
             };
 
             // apply style by setting classes on elements
-            var applyStyle = function() {
+            applyStyle = function() {
                 var $a = self.$widget.find('a[data-rating-value="' + ratingValue() + '"]');
                 var initialRating = getData('userOptions').initialRating;
                 var baseValue = $.isNumeric(ratingValue()) ? ratingValue() : 0;
@@ -445,6 +443,7 @@
             };
 
             this.set = function(value) {
+            	
                 var options = getData('userOptions');
 
                 if (self.$elem.find('option[value="' + value + '"]').length === 0) return;
